@@ -1,29 +1,15 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Tasks from "./components/Tasks";
 import AddTasks from "./components/AddTasks";
+import { v4 } from "uuid";
+import Title from "./components/Title";
 
 function App() {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Estudar programação",
-      description: "asda asdas d asdasdqweqwe qeqweqwe",
-      isCompleted: false,
-    },
-    {
-      id: 2,
-      title: "Estudar programação 1",
-      description: "asda asdas d asdasdqweqwe qeqweqwe",
-      isCompleted: false,
-    },
-    {
-      id: 3,
-      title: "Estudar programação 2",
-      description: "asda asdas d asdasdqweqwe qeqweqwe",
-      isCompleted: false,
-    },
-  ]);
+  const [tasks, setTasks] = useState(
+    JSON.parse(localStorage.getItem("tasks")) || [],
+  );
+  console.log(tasks);
 
   function onTaskClick(taskId) {
     setTasks((tasks) =>
@@ -37,13 +23,33 @@ function App() {
     setTasks((tasks) => tasks.filter((task) => task.id !== taskId));
   }
 
+  function onAddTaskClick(title, description) {
+    setTasks((tasks) => [
+      ...tasks,
+      { id: v4(), title, description, isCompleted: false },
+    ]);
+  }
+
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
+
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     const response = await fetch(
+  //       "https://jsonplaceholder.typicode.com/todos?_limit=10",
+  //     );
+  //     const data = await response.json();
+  //     setTasks(data.map((task) => ({ ...task, id: v4() })));
+  //   }
+  //   fetchData();
+  // }, []);
+
   return (
     <div className="w-screen h-screen bg-slate-500 flex justify-center p-6">
-      <div className="w-[500px] ">
-        <h1 className="text-3xl text-slate-100 font-bold text-center">
-          Gerenciador de tarefas
-        </h1>
-        <AddTasks />
+      <div className="w-[500px] space-y-4">
+        <Title>Gerenciador de tarefas</Title>
+        <AddTasks onAddTaskClick={onAddTaskClick} />
         <Tasks
           tasks={tasks}
           onTaskClick={onTaskClick}
